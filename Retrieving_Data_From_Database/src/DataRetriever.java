@@ -1,7 +1,6 @@
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.Objects;
-import java.util.Scanner;
 
 public class DataRetriever {
 
@@ -10,7 +9,7 @@ public class DataRetriever {
     ResultSet resultSet;
     String userInputName;
     String userInputLastName;
-    ArrayList<String> studentsName = new ArrayList<>();
+    ArrayList<Student> studentsDescriptionList = new ArrayList<>();
 
     public void setUserInputName(String userInputName) {
         this.userInputName = userInputName;
@@ -39,126 +38,73 @@ public class DataRetriever {
         }
     }
 
+    /*
+    Method to create an object for each student in database and add each student object to an Array list
+     */
     public void retrieveData() throws SQLException {
+
+
+        String idStudents;
+        String name;
+        String last_name;
+        String overall_score;
 
         statement = connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
         resultSet = statement.executeQuery("SELECT * FROM students");
+        while (resultSet.next()) {
+            idStudents = (String.valueOf(resultSet.getInt("idstudents")));
+            name = (resultSet.getString("name"));
+            last_name = (resultSet.getString("last_name"));
+            overall_score = (String.valueOf(resultSet.getInt("overall_score")));
+            Student student = new Student(idStudents, name, last_name, overall_score);
+            studentsDescriptionList.add(student);
+        }
+
+
     }
 
-    public void retrieveDataByName(String name) throws SQLException {
+
+    /*
+    Method to find a student in a database by asking the user an input based on name
+     */
+    public ArrayList<Student> retrieveDataByNameWithUserInput(String inputUser) throws SQLException {
+
+        inputUser = inputUser.substring(0, 1).toUpperCase() + userInputName.substring(1).toLowerCase();
+
 
         resultSet = statement.executeQuery("SELECT * FROM students");
-        while (resultSet.next()) {
 
-            if (Objects.equals(resultSet.getString("name"), name)) {
-                System.out.println(resultSet.getInt("idstudents"));
-                System.out.println(resultSet.getString("name"));
-                System.out.println(resultSet.getString("last_name"));
-                System.out.println(resultSet.getInt("overall_score"));
+        ArrayList<Student> studentUserInputList = new ArrayList<>();
+        for (Student element : studentsDescriptionList) {
+            if (Objects.equals(inputUser, element.name)) {
+                studentUserInputList.add(element);
             }
-
         }
 
+
+        return studentUserInputList;
     }
 
-    public void retrieveDataByLastName(String last_name) throws SQLException {
+    /*
+    Method to find a student in a database by asking the user an input based on last name
+     */
+    public ArrayList<Student> retrieveDataByLastNameWithUserInput(String inputUser) throws SQLException {
+
+        inputUser = inputUser.substring(0, 1).toUpperCase() + userInputLastName.substring(1).toLowerCase();
+
 
         resultSet = statement.executeQuery("SELECT * FROM students");
-        while (resultSet.next()) {
 
-            if (Objects.equals(resultSet.getString("last_name"), last_name)) {
-                System.out.println(resultSet.getInt("idstudents"));
-                System.out.println(resultSet.getString("name"));
-                System.out.println(resultSet.getString("last_name"));
-                System.out.println(resultSet.getInt("overall_score"));
-            }
-        }
-    }
-
-    public String retrieveDataByNameWithUserInput(Scanner inputUser) throws SQLException {
-
-        System.out.println("Please enter the name of the student you'd like to find: ");
-        System.out.println("Please enter done when you're finished: ");
-
-//        resultSet = statement.executeQuery("SELECT * FROM students");
-
-        boolean loop = true;
-//        while (studentsName.isEmpty()) {
-//
-//            while (resultSet.next()) {
-//
-//                if (Objects.equals(resultSet.getString("name"), userInputName)) {
-//                    studentsName.add(String.valueOf(resultSet.getInt("idstudents")));
-//                    studentsName.add(resultSet.getString("name"));
-//                    studentsName.add(resultSet.getString("last_name"));
-//                    studentsName.add(String.valueOf(resultSet.getInt("overall_score")));
-//                } else {
-//                    System.out.println("User not found, please try again: ");
-//                }
-//
-//
-//
-//            }
-
-        try {
-            PreparedStatement ps = null;
-            String sql = "SELECT * FROM students ";
-            sql += "WHERE name = ?;";
-            ps = connection.prepareStatement(sql);
-            ps.setString(1, userInputName);
-            resultSet = ps.executeQuery();
-//            while (resultSet.next()) {
-//                if (resultSet.next() && Objects.equals(resultSet.getString("name"), userInputName)) {
-//
-//                    System.out.println("Found the student");
-//
-//
-//                    studentsName.add(String.valueOf(resultSet.getInt("idstudents")));
-//                    studentsName.add(resultSet.getString("name"));
-//                    studentsName.add(resultSet.getString("last_name"));
-//                    studentsName.add(String.valueOf(resultSet.getInt("overall_score")));
-//
-//
-//
-//
-//                } else {
-//                    System.out.println("Did not find the student");
-//                }
-//
-//            }
-
-            while (loop) {
-                userInputName = inputUser.nextLine();
-                userInputName = userInputName.substring(0, 1).toUpperCase() + userInputName.substring(1).toLowerCase();
-                if (userInputName.equals("done")) {
-                    loop = false;
-                } else {
-                    while (resultSet.next()) {
-
-                        if (Objects.equals(resultSet.getString("name"), userInputName)) {
-
-
-                            studentsName.add(String.valueOf(resultSet.getInt("idstudents")));
-                            studentsName.add(resultSet.getString("name"));
-                            studentsName.add(resultSet.getString("last_name"));
-                            studentsName.add(String.valueOf(resultSet.getInt("overall_score")));
-                        }
-                    }
-                }
-            }
-            }    catch (SQLException e) {
-            // handle exception
-        } finally {
-            // cleanup, close connections, etc.
-            for (String element : studentsName) {
-                System.out.print(element + " ");
+        ArrayList<Student> studentUserInputList = new ArrayList<>();
+        for (Student element : studentsDescriptionList) {
+            if (Objects.equals(inputUser, element.last_name)) {
+                studentUserInputList.add(element);
             }
         }
 
-        return userInputName;
+
+        return studentUserInputList;
     }
+}
 
-
-
-    }
 
